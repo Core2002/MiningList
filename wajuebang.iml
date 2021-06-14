@@ -9,5 +9,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="KotlinJavaRuntime" level="project" />
     <orderEntry type="library" name="Paper-1.15.2-b192" level="project" />
+    <orderEntry type="library" name="patched_1.16.5" level="project" />
   </component>
 </module>
