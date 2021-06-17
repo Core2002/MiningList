@@ -1,7 +1,5 @@
 package `fun`.fifu.wjb
 
-import org.bukkit.Bukkit
-import org.bukkit.scoreboard.Scoreboard
 import org.json.simple.JSONObject
 import org.json.simple.JSONValue
 import java.io.File
@@ -15,13 +13,13 @@ object Middleware {
     lateinit var ignore: JSONObject
     const val pluginName = "wajuebang"
     lateinit var ranking: ArrayList<String>
-    lateinit var emptyScoreboard: Scoreboard
+
 
     fun init() {
         data = initConfigFile("data")
         uuid2name = initConfigFile("uuid2name")
         ignore = initConfigFile("ignore")
-        emptyScoreboard = Bukkit.getServer().scoreboardManager.newScoreboard
+
 
         thread(start = true) {
             while (true) {

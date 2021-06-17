@@ -18,10 +18,9 @@ import java.math.BigInteger
 
 class Main : JavaPlugin(), Listener {
 
-
-
     companion object {
         lateinit var plugin: Main
+        lateinit var emptyScoreboard: Scoreboard
 
         @JvmStatic
         fun main(args: Array<String>) {
@@ -37,6 +36,7 @@ class Main : JavaPlugin(), Listener {
     }
 
     override fun onEnable() {
+        emptyScoreboard = Bukkit.getServer().scoreboardManager.newScoreboard
         Middleware.init()
         for (p in server.onlinePlayers)
             Middleware.putUuid2Name(p.uniqueId.toString(), p.displayName)
@@ -103,8 +103,8 @@ class Main : JavaPlugin(), Listener {
                 x
         for (p in server.onlinePlayers) {
             if (Middleware.inIgnore(p.uniqueId.toString())) {
-                if (p.scoreboard != Middleware.emptyScoreboard)
-                    p.scoreboard = Middleware.emptyScoreboard
+                if (p.scoreboard != emptyScoreboard)
+                    p.scoreboard = emptyScoreboard
                 continue
             }
             p.scoreboard = scoreboard
