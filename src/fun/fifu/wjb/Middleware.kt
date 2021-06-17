@@ -7,6 +7,7 @@ import org.json.simple.JSONValue
 import java.io.File
 import java.math.BigInteger
 import java.nio.charset.Charset
+import kotlin.concurrent.thread
 
 object Middleware {
     lateinit var data: JSONObject
@@ -22,16 +23,21 @@ object Middleware {
         ignore = initConfigFile("ignore")
         emptyScoreboard = Bukkit.getServer().scoreboardManager.newScoreboard
 
-        Runnable {
-            Thread.sleep(1000 * 60)
-            saveConfigFile(data, "data")
-            saveConfigFile(uuid2name, "uuid2name")
-            saveConfigFile(ignore, "ignore")
-        }.run()
-        Runnable {
-            Thread.sleep(5000)
-            ranking = calLeaderboard()
-        }.run()
+        thread(start = true) {
+            while (true) {
+                Thread.sleep(1000 * 60)
+                saveConfigFile(data, "data")
+                saveConfigFile(uuid2name, "uuid2name")
+                saveConfigFile(ignore, "ignore")
+            }
+        }
+
+        thread(start = true) {
+            while (true) {
+                Thread.sleep(1000L)
+                ranking = calLeaderboard()
+            }
+        }
     }
 
     fun uninit() {

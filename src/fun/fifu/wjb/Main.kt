@@ -46,7 +46,7 @@ class Main : JavaPlugin(), Listener {
             }
         }.runTaskTimer(plugin, 20, 20)
         server.pluginManager.registerEvents(this, this)
-        server.logger.info("挖掘榜插件已经加载，author: NekokeCore")
+        server.logger.info("挖掘榜插件已经加载，author: NekokeCore 群：710789659")
     }
 
     override fun onDisable() {
