@@ -1,5 +1,5 @@
-name: wajuebang
-main: fun.fifu.wjb.Main
+name: FiFuMiningList
+main: fun.fifu.miningmist.FiFuMiningList
 version: 1.0.0
 author: NekokeCore
 commands:
