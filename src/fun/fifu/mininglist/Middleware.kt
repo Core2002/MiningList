@@ -83,6 +83,8 @@ object Middleware {
     }
 
     fun uuid2name(uuid: String): String {
+        if (uuid2name[uuid] == null)
+            return "<null>"
         return uuid2name[uuid] as String
     }
 
