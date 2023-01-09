@@ -1,8 +1,0 @@
-name: wajuebang
-main: fun.fifu.wjb.Main
-version: 1.0.0
-author: NekokeCore
-commands:
-  wjb:
-    description: "打开或者关闭挖掘帮"
-    usage: /wjb

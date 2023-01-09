@@ -13,7 +13,8 @@ object Middleware {
     lateinit var ignore: JSONObject
     const val pluginName = "FiFuMiningList"
     lateinit var ranking: ArrayList<String>
-
+    lateinit var t0 :Thread
+    lateinit var t1 :Thread
 
     fun init() {
         data = initConfigFile("data")
@@ -21,19 +22,21 @@ object Middleware {
         ignore = initConfigFile("ignore")
 
 
-        thread(start = true) {
+        t0= thread(start = true) {
             while (true) {
                 Thread.sleep(1000 * 60)
                 saveConfigFile(data, "data")
                 saveConfigFile(uuid2name, "uuid2name")
                 saveConfigFile(ignore, "ignore")
+                if(Thread.currentThread().isInterrupted) break
             }
         }
 
-        thread(start = true) {
+        t1 = thread(start = true) {
             while (true) {
                 Thread.sleep(1000L)
                 ranking = calLeaderboard()
+                if(Thread.currentThread().isInterrupted) break
             }
         }
     }
@@ -42,15 +45,19 @@ object Middleware {
         saveConfigFile(data, "data")
         saveConfigFile(uuid2name, "uuid2name")
         saveConfigFile(ignore, "ignore")
+        t0.interrupt()
+        t1.interrupt()
     }
 
+    private val arr = arrayListOf<BigInteger>()
+    private val over = arrayListOf<String>()
+    private val end = ArrayList<String>()
     fun calLeaderboard(): ArrayList<String> {
-        val arr = arrayListOf<BigInteger>()
+        arr.clear()
         for (x in data.keys)
             arr.add(BigInteger(readData(x.toString())))
         quickSort(arr, 0, arr.size - 1)
-
-        val over = arrayListOf<String>()
+        over.clear()
         for (x in arr) {
             for (u in data.keys) {
                 val num = BigInteger(data[u] as String)
@@ -58,8 +65,7 @@ object Middleware {
                     over.add(u.toString())
             }
         }
-
-        val end = ArrayList<String>()
+        end.clear()
         for (x in 0 until over.size)
             if (!end.contains(over[over.size - 1 - x]))
                 end.add(over[over.size - 1 - x])

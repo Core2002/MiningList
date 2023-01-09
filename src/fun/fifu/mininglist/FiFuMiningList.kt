@@ -10,6 +10,7 @@ import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitRunnable
+import org.bukkit.scheduler.BukkitTask
 import org.bukkit.scoreboard.DisplaySlot
 import org.bukkit.scoreboard.Objective
 import org.bukkit.scoreboard.Scoreboard
@@ -35,12 +36,13 @@ class FiFuMiningList : JavaPlugin(), Listener {
         plugin = this
     }
 
+    lateinit var br:BukkitTask
     override fun onEnable() {
-        emptyScoreboard = Bukkit.getServer().scoreboardManager.newScoreboard
+        emptyScoreboard = Bukkit.getServer().scoreboardManager!!.newScoreboard
         Middleware.init()
         for (p in server.onlinePlayers)
             Middleware.putUuid2Name(p.uniqueId.toString(), p.displayName)
-        object : BukkitRunnable() {
+        br = object : BukkitRunnable() {
             override fun run() {
                 loadBoard()
             }
@@ -50,6 +52,7 @@ class FiFuMiningList : JavaPlugin(), Listener {
     }
 
     override fun onDisable() {
+        br.cancel()
         Middleware.uninit()
         server.logger.info("挖掘榜插件已卸载，感谢使用，")
     }
@@ -86,7 +89,7 @@ class FiFuMiningList : JavaPlugin(), Listener {
 
 
     fun loadBoard() {
-        val scoreboard: Scoreboard = Bukkit.getServer().scoreboardManager.newScoreboard
+        val scoreboard: Scoreboard = Bukkit.getServer().scoreboardManager!!.newScoreboard
         val objective: Objective = scoreboard.registerNewObjective(Middleware.pluginName, "dummy", "挖掘榜")
         objective.displaySlot = DisplaySlot.SIDEBAR
         var size = Middleware.ranking.size
