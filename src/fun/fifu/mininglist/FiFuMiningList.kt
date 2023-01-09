@@ -36,7 +36,7 @@ class FiFuMiningList : JavaPlugin(), Listener {
         plugin = this
     }
 
-    lateinit var br:BukkitTask
+    private lateinit var br: BukkitTask
     override fun onEnable() {
         emptyScoreboard = Bukkit.getServer().scoreboardManager!!.newScoreboard
         Middleware.init()

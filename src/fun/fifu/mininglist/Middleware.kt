@@ -13,8 +13,8 @@ object Middleware {
     lateinit var ignore: JSONObject
     const val pluginName = "FiFuMiningList"
     lateinit var ranking: ArrayList<String>
-    lateinit var t0 :Thread
-    lateinit var t1 :Thread
+    private lateinit var t0 :Thread
+    private lateinit var t1 :Thread
 
     fun init() {
         data = initConfigFile("data")
