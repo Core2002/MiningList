@@ -89,28 +89,31 @@ class FiFuMiningList : JavaPlugin(), Listener {
 
 
     fun loadBoard() {
-        val scoreboard: Scoreboard = Bukkit.getServer().scoreboardManager!!.newScoreboard
-        val objective: Objective = scoreboard.registerNewObjective(Middleware.pluginName, "dummy", "挖掘榜")
-        objective.displaySlot = DisplaySlot.SIDEBAR
-        var size = Middleware.ranking.size
-        if (size > 16)
-            size = 16
-        else if (size == 0)
-            return
-        for (x in 0 until size)
-            objective.getScore(
-                "§fNo.${size - x}: §b" + Middleware.uuid2name(Middleware.ranking[size - x - 1]) + " §e" + Middleware.readData(
-                    Middleware.ranking[size - x - 1]
-                )
-            ).score =
-                x
-        for (p in server.onlinePlayers) {
-            if (Middleware.inIgnore(p.uniqueId.toString())) {
-                if (p.scoreboard != emptyScoreboard)
-                    p.scoreboard = emptyScoreboard
-                continue
+        try {
+            val scoreboard: Scoreboard = Bukkit.getServer().scoreboardManager!!.newScoreboard
+            val objective: Objective = scoreboard.registerNewObjective(Middleware.pluginName, "dummy", "挖掘榜")
+            objective.displaySlot = DisplaySlot.SIDEBAR
+            var size = Middleware.ranking.size
+            if (size > 16)
+                size = 16
+            else if (size == 0)
+                return
+            for (x in 0 until size)
+                objective.getScore(
+                    "§fNo.${size - x}: §b" + Middleware.uuid2name(Middleware.ranking[size - x - 1]) + " §e" + Middleware.readData(
+                        Middleware.ranking[size - x - 1]
+                    )
+                ).score =
+                    x
+            for (p in server.onlinePlayers) {
+                if (Middleware.inIgnore(p.uniqueId.toString())) {
+                    if (p.scoreboard != emptyScoreboard)
+                        p.scoreboard = emptyScoreboard
+                    continue
+                }
+                p.scoreboard = scoreboard
             }
-            p.scoreboard = scoreboard
+        } catch (_: Exception) {
         }
     }
 }
