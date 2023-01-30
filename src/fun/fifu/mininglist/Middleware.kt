@@ -1,6 +1,7 @@
 package `fun`.fifu.mininglist
 
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import org.bukkit.Statistic
 import org.json.simple.JSONObject
 import org.json.simple.JSONValue
@@ -8,7 +9,6 @@ import java.io.File
 import java.math.BigInteger
 import java.nio.charset.Charset
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
 
 object Middleware {
@@ -89,9 +89,16 @@ object Middleware {
 
     fun putUuid2Name(uuid: String, name: String) {
         if (!uuid2name.contains(uuid)) {
+            var oldMineBlockNum = 0
+            for (m in Material.values()) {
+                if (m.isBlock) {
+                    oldMineBlockNum +=
+                        Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getStatistic(Statistic.MINE_BLOCK, m)
+                }
+            }
+            uuid2name[uuid] = name
             FiFuMiningList.plugin.logger.info("成功为玩家 $name 加载统计数据")
-            val oldMineBlockNum = Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getStatistic(Statistic.MINE_BLOCK)
-            val mineBlockNum = BigInteger(data[uuid] as String).add(BigInteger(oldMineBlockNum.toString()))
+            val mineBlockNum = BigInteger(oldMineBlockNum.toString())
             putData(uuid, mineBlockNum.toString())
         }
         uuid2name[uuid] = name
