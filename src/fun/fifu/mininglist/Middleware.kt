@@ -1,10 +1,14 @@
 package `fun`.fifu.mininglist
 
+import org.bukkit.Bukkit
+import org.bukkit.Statistic
 import org.json.simple.JSONObject
 import org.json.simple.JSONValue
 import java.io.File
 import java.math.BigInteger
 import java.nio.charset.Charset
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
 
 object Middleware {
@@ -13,8 +17,8 @@ object Middleware {
     lateinit var ignore: JSONObject
     const val pluginName = "FiFuMiningList"
     lateinit var ranking: ArrayList<String>
-    private lateinit var t0 :Thread
-    private lateinit var t1 :Thread
+    private lateinit var t0: Thread
+    private lateinit var t1: Thread
 
     fun init() {
         data = initConfigFile("data")
@@ -22,13 +26,13 @@ object Middleware {
         ignore = initConfigFile("ignore")
 
 
-        t0= thread(start = true) {
+        t0 = thread(start = true) {
             while (true) {
                 Thread.sleep(1000 * 60)
                 saveConfigFile(data, "data")
                 saveConfigFile(uuid2name, "uuid2name")
                 saveConfigFile(ignore, "ignore")
-                if(Thread.currentThread().isInterrupted) break
+                if (Thread.currentThread().isInterrupted) break
             }
         }
 
@@ -36,7 +40,7 @@ object Middleware {
             while (true) {
                 Thread.sleep(1000L)
                 ranking = calLeaderboard()
-                if(Thread.currentThread().isInterrupted) break
+                if (Thread.currentThread().isInterrupted) break
             }
         }
     }
@@ -84,6 +88,12 @@ object Middleware {
     }
 
     fun putUuid2Name(uuid: String, name: String) {
+        if (!uuid2name.contains(uuid)) {
+            FiFuMiningList.plugin.logger.info("成功为玩家 $name 加载统计数据")
+            val oldMineBlockNum = Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getStatistic(Statistic.MINE_BLOCK)
+            val mineBlockNum = BigInteger(data[uuid] as String).add(BigInteger(oldMineBlockNum.toString()))
+            putData(uuid, mineBlockNum.toString())
+        }
         uuid2name[uuid] = name
         saveConfigFile(uuid2name, "uuid2name")
     }
