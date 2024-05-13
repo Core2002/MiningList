@@ -1,2 +1,7 @@
+.gradle
 .idea
-out/production
+build
+libs
+plugins
+logs
+bin

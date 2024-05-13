@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2023 NekokeCore(Core2002@aliyun.com)
+ * FiFuPowered is licensed under Mulan PSL v2.
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
+ * You may obtain a copy of Mulan PSL v2 at:
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ */
+
 package `fun`.fifu.mininglist
 
 import org.bukkit.Bukkit
@@ -17,19 +29,11 @@ import org.bukkit.scoreboard.Scoreboard
 import java.math.BigInteger
 
 
-class FiFuMiningList : JavaPlugin(), Listener {
+class MiningList : JavaPlugin(), Listener {
 
     companion object {
-        lateinit var plugin: FiFuMiningList
+        lateinit var plugin: MiningList
         lateinit var emptyScoreboard: Scoreboard
-
-        @JvmStatic
-        fun main(args: Array<String>) {
-            for (x in 0 until 16)
-                println(16 - 1 - x)
-        }
-
-
     }
 
     override fun onLoad() {
@@ -38,7 +42,7 @@ class FiFuMiningList : JavaPlugin(), Listener {
 
     private lateinit var br: BukkitTask
     override fun onEnable() {
-        emptyScoreboard = Bukkit.getServer().scoreboardManager!!.newScoreboard
+        emptyScoreboard = Bukkit.getServer().scoreboardManager.newScoreboard
         Middleware.init()
         for (p in server.onlinePlayers)
             Middleware.putUuid2Name(p.uniqueId.toString(), p.displayName)
@@ -53,7 +57,7 @@ class FiFuMiningList : JavaPlugin(), Listener {
 
     override fun onDisable() {
         br.cancel()
-        Middleware.uninit()
+        Middleware.unInit()
         server.logger.info("挖掘榜插件已卸载，感谢使用，")
     }
 
@@ -72,7 +76,6 @@ class FiFuMiningList : JavaPlugin(), Listener {
         return true
     }
 
-
     @EventHandler
     private fun onPlayerJoin(event: PlayerJoinEvent) {
         val player = event.player
@@ -87,10 +90,9 @@ class FiFuMiningList : JavaPlugin(), Listener {
         Middleware.putData(uuid, num)
     }
 
-
     fun loadBoard() {
         try {
-            val scoreboard: Scoreboard = Bukkit.getServer().scoreboardManager!!.newScoreboard
+            val scoreboard: Scoreboard = Bukkit.getServer().scoreboardManager.newScoreboard
             val objective: Objective = scoreboard.registerNewObjective(Middleware.pluginName, "dummy", "挖掘榜")
             objective.displaySlot = DisplaySlot.SIDEBAR
             var size = Middleware.ranking.size
