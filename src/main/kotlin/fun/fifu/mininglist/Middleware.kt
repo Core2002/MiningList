@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2023 NekokeCore(Core2002@aliyun.com)
+ * FiFuPowered is licensed under Mulan PSL v2.
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
+ * You may obtain a copy of Mulan PSL v2 at:
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ */
+
 package `fun`.fifu.mininglist
 
 import org.bukkit.Bukkit
@@ -9,48 +21,26 @@ import java.io.File
 import java.math.BigInteger
 import java.nio.charset.Charset
 import java.util.*
-import kotlin.concurrent.thread
 
 object Middleware {
-    lateinit var data: JSONObject
-    lateinit var uuid2name: JSONObject
-    lateinit var ignore: JSONObject
+    var data: JSONObject
+    var uuid2name: JSONObject
+    var ignore: JSONObject
     const val pluginName = "FiFuMiningList"
     lateinit var ranking: ArrayList<String>
-    private lateinit var t0: Thread
-    private lateinit var t1: Thread
 
-    fun init() {
+    init {
         data = initConfigFile("data")
         uuid2name = initConfigFile("uuid2name")
         ignore = initConfigFile("ignore")
-
-
-        t0 = thread(start = true) {
-            while (true) {
-                Thread.sleep(1000 * 60)
-                saveConfigFile(data, "data")
-                saveConfigFile(uuid2name, "uuid2name")
-                saveConfigFile(ignore, "ignore")
-                if (Thread.currentThread().isInterrupted) break
-            }
-        }
-
-        t1 = thread(start = true) {
-            while (true) {
-                Thread.sleep(1000L)
-                ranking = calLeaderboard()
-                if (Thread.currentThread().isInterrupted) break
-            }
-        }
     }
 
-    fun uninit() {
-        saveConfigFile(data, "data")
-        saveConfigFile(uuid2name, "uuid2name")
-        saveConfigFile(ignore, "ignore")
-        t0.interrupt()
-        t1.interrupt()
+    fun init() {
+        ranking = calLeaderboard()
+    }
+
+    fun unInit() {
+        saveAll()
     }
 
     private val arr = arrayListOf<BigInteger>()
@@ -77,38 +67,39 @@ object Middleware {
         return end
     }
 
-    fun putData(uuid: String, num: String) {
-        data[uuid] = num
-    }
-
     fun readData(uuid: String): String {
         if (data[uuid] == null)
             return "0"
         return data[uuid] as String
     }
 
-    fun putUuid2Name(uuid: String, name: String) {
-        if (!uuid2name.contains(uuid)) {
-            var oldMineBlockNum = 0
-            for (m in Material.values()) {
-                if (m.isBlock) {
-                    oldMineBlockNum +=
-                        Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getStatistic(Statistic.MINE_BLOCK, m)
-                }
-            }
-            uuid2name[uuid] = name
-            FiFuMiningList.plugin.logger.info("成功为玩家 $name 加载统计数据")
-            val mineBlockNum = BigInteger(oldMineBlockNum.toString())
-            putData(uuid, mineBlockNum.toString())
-        }
-        uuid2name[uuid] = name
-        saveConfigFile(uuid2name, "uuid2name")
+    fun putData(uuid: String, num: String) {
+        data[uuid] = num
+        makeChangeFlag()
     }
 
     fun uuid2name(uuid: String): String {
         if (uuid2name[uuid] == null)
             return "<null>"
         return uuid2name[uuid] as String
+    }
+
+    fun putUuid2Name(uuid: String, name: String) {
+        if (!uuid2name.contains(uuid)) {
+            var oldMineBlockNum = 0
+            for (m in Material.entries) {
+                if (m.isBlock) {
+                    oldMineBlockNum +=
+                        Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getStatistic(Statistic.MINE_BLOCK, m)
+                }
+            }
+            uuid2name[uuid] = name
+            MiningList.plugin.logger.info("成功为玩家 $name 加载统计数据")
+            val mineBlockNum = BigInteger(oldMineBlockNum.toString())
+            putData(uuid, mineBlockNum.toString())
+        }
+        uuid2name[uuid] = name
+        makeChangeFlag()
     }
 
     fun inIgnore(uuid: String): Boolean {
@@ -121,10 +112,31 @@ object Middleware {
 
     fun addIgnore(uuid: String) {
         ignore[uuid] = System.currentTimeMillis().toString()
+        makeChangeFlag()
     }
 
     fun removeIgnore(uuid: String) {
         ignore.remove(uuid)
+    }
+
+    private var lastChangeTime = System.currentTimeMillis()
+
+    private fun makeChangeFlag() {
+        if (canDoSave()){
+            saveAll()
+        }
+        lastChangeTime = System.currentTimeMillis()
+    }
+
+    private fun canDoSave(): Boolean {
+        return System.currentTimeMillis() > lastChangeTime + 1000 * 5
+    }
+
+    private fun saveAll() {
+        ranking = calLeaderboard()
+        saveConfigFile(data, "data")
+        saveConfigFile(uuid2name, "uuid2name")
+        saveConfigFile(ignore, "ignore")
     }
 
     private fun saveConfigFile(jsonObject: JSONObject, name: String) {

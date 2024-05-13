@@ -1,4 +1,4 @@
-# 挖掘榜插件
+# 挖掘榜插件 (本项目已整合到 [FiFu Powered](https://github.com/Core2002/FiFuPowered))
 
 #### 介绍
 本插件由钟小白Core一人开发，肝了一个晚上+一个下午
